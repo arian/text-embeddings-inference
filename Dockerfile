@@ -13,6 +13,7 @@ FROM chef AS planner
 COPY backends backends
 COPY core core
 COPY router router
+COPY lambda lambda
 COPY Cargo.toml ./
 COPY Cargo.lock ./
 
@@ -48,10 +49,11 @@ RUN cargo chef cook --release --features candle --features mkl-dynamic --no-defa
 COPY backends backends
 COPY core core
 COPY router router
+COPY lambda lambda
 COPY Cargo.toml ./
 COPY Cargo.lock ./
 
-RUN cargo build --release --bin text-embeddings-router -F candle -F mkl-dynamic --no-default-features && sccache -s
+RUN cargo build --release --bin text-embeddings-lambda -F candle -F mkl-dynamic --no-default-features && sccache -s
 
 FROM debian:bookworm-slim
 
@@ -80,7 +82,6 @@ COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/intel64/libmkl_avx2.so.2 /u
 COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/intel64/libmkl_avx512.so.2 /usr/local/lib/libmkl_avx512.so.2
 COPY --from=builder /usr/src/libfakeintel.so /usr/local/libfakeintel.so
 
-COPY --from=builder /usr/src/target/release/text-embeddings-router /usr/local/bin/text-embeddings-router
+COPY --from=builder /usr/src/target/release/text-embeddings-lambda /usr/local/bin/text-embeddings-lambda
 
-ENTRYPOINT ["text-embeddings-router"]
-CMD ["--json-output"]
+ENTRYPOINT ["text-embeddings-lambda"]

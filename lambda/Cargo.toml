@@ -1,0 +1,28 @@
+[package]
+name = "text-embeddings-lambda"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+homepage.workspace = true
+
+[[bin]]
+name = "text-embeddings-lambda"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0.71"
+hf-hub = { version = "0.3.0", features = ["tokio"] }
+tokenizers = { version = "0.15.0", default-features=false, features=["onig", "esaxx_fast"] }
+text-embeddings-backend = { path = "../backends", features = ["clap"] }
+text-embeddings-core = { path = "../core" }
+tokio = { version = "1.25.0", features = ["rt", "rt-multi-thread", "parking_lot", "signal", "sync"] }
+serde = "1.0.152"
+serde_json = "1.0.93"
+num_cpus = "1.16.0"
+lambda_runtime = "0.8.3"
+
+[features]
+default = ["candle"]
+candle = ["text-embeddings-backend/candle"]
+mkl = ["text-embeddings-backend/mkl"]
+mkl-dynamic = ["text-embeddings-backend/mkl-dynamic"]
